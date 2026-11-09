@@ -1,0 +1,7 @@
+langchain
+langchain-core
+langchain-ollama
+langgraph
+pydantic
+python-dotenv
+mcp[cli]
