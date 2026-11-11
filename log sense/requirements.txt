@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+redis
+python-multipart
+scikit-learn
+numpy
+httpx
+google-genai
+python-dotenv
+
+
+
+
+
+
+
+

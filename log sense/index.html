@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogSense AI | Observability Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">L</div>
+            <div>
+                <h2>LogSense<span> AI</span></h2>
+                <small>INTELLIGENCE PLATFORM</small>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <span class="workspace-dot"></span>
+            <div>
+                <b>Engineering Workspace</b>
+                <small>Application observability</small>
+            </div>
+        </div>
+
+        <p class="nav-label">WORKSPACE</p>
+        <a class="nav-link active" href="#overview"><span>◈</span> Overview</a>
+        <a class="nav-link" href="#ingestion"><span>⇧</span> Log ingestion</a>
+        <a class="nav-link" href="#clusters"><span>◎</span> Error clusters</a>
+        <a class="nav-link" href="#anomalies"><span>⌁</span> Anomaly detection</a>
+        <a class="nav-link" href="#rootcause"><span>✧</span> Root cause AI</a>
+        <a class="nav-link" href="#events"><span>▤</span> Event explorer</a>
+
+        <div class="sidebar-bottom">
+            <div class="online-indicator"><span></span> SYSTEM MONITOR</div>
+            <b id="sideStatus">Checking services...</b>
+            <small id="sideRedis">Redis status pending</small>
+            <div class="sidebar-version">LOGSENSE AI · VERSION 2.0</div>
+        </div>
+    </aside>
+
+    <main class="main-content" id="overview">
+        <header class="topbar">
+            <div>
+                <div class="breadcrumb">OBSERVABILITY <span>/</span> OVERVIEW</div>
+                <h1>Log Intelligence Center</h1>
+                <p>Understand system behaviour. Discover anomalies. Investigate root causes.</p>
+            </div>
+            <div class="topbar-right">
+                <div class="live-pill"><span></span> ANALYSIS ENGINE</div>
+                <div class="avatar">LS</div>
+            </div>
+        </header>
+
+        <section class="hero-strip">
+            <div>
+                <div class="eyebrow">INTELLIGENT LOG MONITORING</div>
+                <h2>See beyond the logs.</h2>
+                <p>Machine learning-powered pattern discovery and anomaly investigation.</p>
+            </div>
+            <div class="hero-symbol">✧</div>
+        </section>
+
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-top"><span>TOTAL EVENTS</span><span class="kpi-icon blue">▤</span></div>
+                <strong id="totalLines">—</strong>
+                <small>Log records processed</small>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top"><span>ERROR EVENTS</span><span class="kpi-icon red">!</span></div>
+                <strong id="errorCount">—</strong>
+                <small>Errors and critical events</small>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top"><span>ERROR RATE</span><span class="kpi-icon amber">◒</span></div>
+                <strong id="errorRate">—</strong>
+                <small>Share of all log events</small>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-top"><span>ANOMALIES</span><span class="kpi-icon purple">⌁</span></div>
+                <strong id="anomalyCount">—</strong>
+                <small>Unusual activity intervals</small>
+            </div>
+        </section>
+
+        <section class="panel ingestion-panel" id="ingestion">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">01 / DATA INGESTION</div>
+                    <h2>Analyze application logs</h2>
+                    <p>Upload a log file or paste your application log content.</p>
+                </div>
+                <span class="section-icon">⇧</span>
+            </div>
+
+            <div class="ingestion-grid">
+                <label class="upload-zone" for="logFile">
+                    <span class="upload-icon">⇧</span>
+                    <b>Drop your log file here</b>
+                    <span>or click to browse files</span>
+                    <small id="fileName">Supports .log and .txt · Max 5 MB</small>
+                    <input type="file" id="logFile" accept=".log,.txt">
+                </label>
+
+                <div class="paste-box">
+                    <label for="logText">PASTE LOG CONTENT</label>
+                    <textarea id="logText" placeholder="2026-11-10 10:20:00 ERROR service=payment Database connection failed&#10;2026-11-10 10:21:00 WARNING service=auth High response time detected"></textarea>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button class="primary-button" id="analyzeButton" onclick="analyzeLogs()">Run intelligent analysis <span>→</span></button>
+                <button class="secondary-button" onclick="loadSample()">Load sample logs</button>
+                <span id="analysisMessage" aria-live="polite"></span>
+            </div>
+        </section>
+
+        <section class="two-column">
+            <div class="panel chart-panel">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">02 / SEVERITY INTELLIGENCE</div>
+                        <h2>Severity distribution</h2>
+                        <p>Breakdown of detected log levels.</p>
+                    </div>
+                </div>
+                <div class="chart-area"><canvas id="severityChart"></canvas></div>
+            </div>
+
+            <div class="panel chart-panel">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">03 / ACTIVITY MONITOR</div>
+                        <h2>Log activity timeline</h2>
+                        <p>Events grouped by timestamp interval.</p>
+                    </div>
+                </div>
+                <div class="chart-area"><canvas id="timelineChart"></canvas></div>
+            </div>
+        </section>
+
+        <section class="panel" id="clusters">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">04 / MACHINE LEARNING</div>
+                    <h2>Intelligent error clustering</h2>
+                    <p>TF-IDF vectorization and K-Means grouping of similar error messages.</p>
+                </div>
+                <span class="algorithm-tag">TF-IDF + K-MEANS</span>
+            </div>
+            <div id="clusterStatus" class="feature-status">Upload logs to discover error clusters.</div>
+            <div id="clustersGrid" class="clusters-grid">
+                <div class="empty-state">Your discovered error groups will appear here.</div>
+            </div>
+        </section>
+
+        <section class="panel" id="anomalies">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">05 / ANOMALY INTELLIGENCE</div>
+                    <h2>Abnormal activity detection</h2>
+                    <p>Isolation Forest identifies unusual event-volume intervals.</p>
+                </div>
+                <span class="algorithm-tag purple-tag">ISOLATION FOREST</span>
+            </div>
+            <div id="anomalyStatus" class="feature-status">Upload timestamped logs to detect unusual activity.</div>
+            <div id="anomaliesList" class="anomaly-list">
+                <div class="empty-state">Anomaly detection results will appear here.</div>
+            </div>
+        </section>
+
+        <section class="panel root-panel" id="rootcause">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">06 / GENERATIVE AI</div>
+                    <h2>AI root cause investigation</h2>
+                    <p>Generate an evidence-based explanation of possible causes and fixes.</p>
+                </div>
+                <span class="ai-badge">✧ AI ANALYST</span>
+            </div>
+            <div class="root-content">
+                <div class="root-graphic">✧</div>
+                <div class="root-copy">
+                    <b>Turn log evidence into engineering insights.</b>
+                    <p>Uses the analysis summary to identify likely causes, affected services and recommended investigation steps.</p>
+                    <button class="primary-button" id="explainButton" onclick="explainRootCause()" disabled>Generate AI explanation →</button>
+                </div>
+            </div>
+            <div id="llmStatus" class="feature-status">Run log analysis first. An OpenAI API key is required for LLM explanations.</div>
+            <div id="explanation" class="explanation-output"></div>
+        </section>
+
+        <section class="two-column lower-grid">
+            <div class="panel">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">07 / SERVICE INTELLIGENCE</div>
+                        <h2>Most active sources</h2>
+                    </div>
+                </div>
+                <div id="sourcesList" class="sources-list">
+                    <div class="empty-state">No source data available yet.</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">08 / INVESTIGATION</div>
+                        <h2>Recommended actions</h2>
+                    </div>
+                </div>
+                <ul id="recommendations" class="recommendations">
+                    <li>Upload logs to receive investigation suggestions.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="panel" id="events">
+            <div class="section-heading">
+                <div>
+                    <div class="eyebrow">09 / EVENT EXPLORER</div>
+                    <h2>Recent log events</h2>
+                    <p>Latest records from the uploaded log data.</p>
+                </div>
+                <span class="algorithm-tag">LATEST 30</span>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr><th>TIMESTAMP</th><th>SEVERITY</th><th>SOURCE</th><th>MESSAGE</th></tr>
+                    </thead>
+                    <tbody id="eventsTable">
+                        <tr><td colspan="4" class="empty-state">No events to display.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <span>LOGSENSE AI · INTELLIGENT OBSERVABILITY PLATFORM</span>
+            <span>ML ANALYTICS · ROOT CAUSE AI · REDIS SERVICES</span>
+        </footer>
+    </main>
+</div>
+<script src="/static/script.js"></script>
+</body>
+</html>
